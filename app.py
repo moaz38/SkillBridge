@@ -34,6 +34,11 @@ def student_login():
             session['user_id'] = user['student_id']
             session['role'] = 'student'
             session['name'] = user['name']
+            
+            # --- CHANGE 1: Gender bhi session mein save kiya ---
+            session['gender'] = user['gender'] 
+            # ---------------------------------------------------
+
             conn.close()
             return redirect(url_for('student_dashboard'))
         else:
@@ -48,16 +53,22 @@ def student_register():
         email = request.form['email']
         major = request.form['major']
         grad_year = request.form['graduation_year']
+        
+        # --- CHANGE 2: Form se Gender liya ---
+        gender = request.form['gender']
+        # -------------------------------------
+
         conn = get_db()
         cursor = conn.cursor()
         try:
-            cursor.execute("INSERT INTO STUDENT (name, email, major, graduation_year) VALUES (%s, %s, %s, %s)", 
-                           (name, email, major, grad_year))
+            # --- CHANGE 3: Query mein gender add kiya ---
+            cursor.execute("INSERT INTO STUDENT (name, email, major, graduation_year, gender) VALUES (%s, %s, %s, %s, %s)", 
+                           (name, email, major, grad_year, gender))
             conn.commit()
             flash('Registration Successful! Login Now.', 'success')
             return redirect(url_for('student_login'))
-        except:
-            flash('Email already exists!', 'danger')
+        except Exception as e:
+            flash(f'Error: {str(e)}', 'danger')
         finally:
             conn.close()
     return render_template('register.html')
@@ -225,8 +236,6 @@ def admin_dashboard():
     
     conn.close()
     
-    # --- HERE WAS THE MISTAKE, FIXED NOW ---
-    # Changed 'admin/dashboard.html' -> 'admin_dashboard.html'
     return render_template('admin_dashboard.html', 
                            companies=companies, 
                            internships=internships, 
@@ -297,12 +306,15 @@ def add_student_admin():
     conn = get_db()
     cursor = conn.cursor()
     try:
-        cursor.execute("INSERT INTO STUDENT (name, email, major, graduation_year) VALUES (%s, %s, %s, %s)",
-                       (request.form['name'], request.form['email'], request.form['major'], request.form['grad_year']))
+        # --- CHANGE 4: Admin form se bhi gender liya ---
+        gender = request.form['gender']
+        # --- CHANGE 5: Query mein gender add kiya ---
+        cursor.execute("INSERT INTO STUDENT (name, email, major, graduation_year, gender) VALUES (%s, %s, %s, %s, %s)",
+                       (request.form['name'], request.form['email'], request.form['major'], request.form['grad_year'], gender))
         conn.commit()
         flash('Student Added Successfully!', 'success')
-    except:
-        flash('Error! Email already exists.', 'danger')
+    except Exception as e:
+        flash(f'Error: {str(e)}', 'danger')
     conn.close()
     return redirect(url_for('admin_dashboard', tab='students'))
 

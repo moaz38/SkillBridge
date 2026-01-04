@@ -1,0 +1,307 @@
+{% extends "base.html" %}
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+    body { font-family: 'Poppins', sans-serif; background-color: #f4f7fa; }
+
+    /* --- SIDEBAR & CARDS (SAME AS BEFORE) --- */
+    .profile-card { background: white; border: none; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); overflow: hidden; text-align: center; }
+    .profile-header-bg { height: 100px; background: linear-gradient(135deg, #0d6efd, #0dcaf0); }
+    .profile-img { width: 90px; height: 90px; border-radius: 50%; border: 4px solid white; margin-top: -45px; background: white; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+    .skill-badge { background: rgba(13, 110, 253, 0.1); color: #0d6efd; font-size: 0.8rem; padding: 5px 12px; border-radius: 20px; display: inline-block; margin: 3px; font-weight: 500; }
+    .app-card { background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-top: 25px; }
+    .app-header { background: #2c3e50; color: white; padding: 15px 20px; border-radius: 20px 20px 0 0; font-weight: 600; }
+    .app-list-item { border-bottom: 1px solid #f0f0f0; padding: 15px 20px; }
+    .job-card { background: white; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.03); transition: 0.3s; border-left: 5px solid #0d6efd; }
+    .job-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(13, 110, 253, 0.15); }
+    .btn-apply { background: linear-gradient(90deg, #0d6efd, #0099ff); color: white; border-radius: 50px; padding: 8px 25px; border: none; font-weight: 500; transition: 0.3s; }
+    .btn-apply:hover { transform: scale(1.05); box-shadow: 0 6px 15px rgba(13, 110, 253, 0.3); color: white; }
+    
+    /* --- PROFESSIONAL THUMBNAIL COURSE CARD --- */
+    .course-card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.05); transition: 0.3s; height: 100%; border: 1px solid #f0f0f0; }
+    .course-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+    .course-thumb { height: 140px; background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+    .course-thumb::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.2' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E"); opacity: 0.3; }
+    .course-thumb i { position: relative; z-index: 1; filter: drop-shadow(0 3px 5px rgba(0,0,0,0.2)); }
+    .fade-in-up { animation: fadeInUp 0.8s ease-out forwards; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* --- SRS MODAL STYLES --- */
+    .modal-fullscreen .modal-header { background: white; padding: 20px 40px; border-bottom: 1px solid #eee; }
+    .srs-sidebar { background: #f8f9fa; border-right: 1px solid #e9ecef; height: 100%; padding: 30px; }
+    .srs-content { padding: 40px; background: white; }
+    
+    /* Feature Box Style */
+    .feature-box {
+        border-left: 4px solid #0d6efd;
+        background: #f8f9fa;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 0 10px 10px 0;
+    }
+</style>
+
+<div class="row fade-in-up">
+    <div class="col-md-3">
+        <div class="profile-card">
+            <div class="profile-header-bg"></div>
+            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="User" class="profile-img">
+            <div class="p-3">
+                <h5 class="fw-bold text-dark mb-1">{{ student }}</h5>
+                <p class="text-muted small mb-3">Computer Science Student</p>
+                <a href="/student/skills" class="btn btn-outline-primary btn-sm rounded-pill w-100 mb-3">Edit Skills</a>
+                <hr class="opacity-25 my-3">
+                <div class="text-start">
+                    <small class="text-uppercase text-muted fw-bold d-block mb-2" style="font-size: 0.7rem;">My Skills</small>
+                    {% for skill in skills %} <span class="skill-badge">{{ skill['skill_name'] }}</span>
+                    {% else %} <span class="text-danger small">No skills added.</span> {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="app-card">
+            <div class="app-header"><i class="fas fa-paper-plane me-2"></i> Applications</div>
+            <div class="d-flex flex-column">
+                {% for app in applications %}
+                <div class="app-list-item d-flex justify-content-between align-items-center">
+                    <div><span class="fw-bold d-block small">{{ app['title'] }}</span><small class="text-muted" style="font-size: 0.7rem;">{{ app['company'] }}</small></div>
+                    {% if app['status'] == 'Pending' %} <span class="badge bg-warning text-dark rounded-pill" style="font-size: 0.7rem;">Pending</span>
+                    {% else %} <span class="badge bg-success rounded-pill" style="font-size: 0.7rem;">Accepted</span> {% endif %}
+                </div>
+                {% else %}
+                <div class="p-4 text-center text-muted small">No applications yet.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-9 mt-4 mt-md-0">
+        
+        <h4 class="fw-bold text-dark mb-4"><span class="text-primary me-2"><i class="fas fa-briefcase"></i></span> Recommended Internships</h4>
+        {% for intern in internships %}
+        <div class="job-card mb-3 p-4">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h5 class="fw-bold text-dark mb-1">{{ intern['title'] }}</h5>
+                    <div class="text-muted small mb-2"><i class="fas fa-building me-1"></i> {{ intern['company'] }} <span class="mx-2 text-primary">•</span> <i class="fas fa-user-tag me-1"></i> {{ intern['role'] }}</div>
+                    <span class="badge bg-light text-dark border rounded-pill px-3"><i class="far fa-clock me-1"></i> {{ intern['duration'] }}</span>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <a href="/student/apply/{{ intern['internship_id'] }}" class="btn btn-apply">Apply Now</a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+            <div class="alert alert-light border shadow-sm text-center py-4 rounded-3"><h5 class="fw-bold text-muted">No Internships Found</h5><p class="small">Update skills to see jobs.</p></div>
+        {% endfor %}
+
+        <h4 class="fw-bold text-dark mt-5 mb-4"><span class="text-danger me-2"><i class="fab fa-youtube"></i></span> Learning Courses</h4>
+        <div class="row">
+            {% for course in courses %}
+            <div class="col-md-4 mb-4">
+                <div class="course-card d-flex flex-column">
+                    <div class="course-thumb"><i class="fab fa-youtube text-danger fa-4x"></i></div>
+                    <div class="p-4 d-flex flex-column flex-grow-1">
+                        <h6 class="fw-bold text-dark mb-2">{{ course['title'] }}</h6>
+                        <div class="small text-muted mb-3">
+                            <span class="me-3"><i class="fas fa-tv me-1"></i> {{ course['provider'] }}</span>
+                            <span><i class="far fa-clock me-1"></i> {{ course['duration'] }}</span>
+                        </div>
+                        <a href="https://www.youtube.com/results?search_query={{ course['title'] }} {{ course['provider'] }}" target="_blank" class="btn btn-outline-dark w-100 rounded-pill fw-bold btn-sm mt-auto">
+                            Watch Now <i class="fas fa-play ms-1 small"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-12"><div class="alert alert-light border text-center text-muted small">No courses available right now.</div></div>
+            {% endfor %}
+        </div>
+
+        <h4 class="fw-bold text-dark mt-5 mb-4"><span class="text-success me-2"><i class="fas fa-laptop-code"></i></span> Real-World Projects</h4>
+        <div class="row">
+            {% for proj in projects %}
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 border-0 shadow-sm p-3 rounded-3 border-top border-5 border-success">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="fw-bold text-success mb-0">{{ proj['title'] }}</h5>
+                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill">{{ proj['complexity_level'] }}</span>
+                        </div>
+                        <p class="text-muted small">{{ proj['description'] }}</p>
+                        
+                        <button class="btn btn-outline-success w-100 rounded-pill mt-2 project-btn" 
+                                onclick="openSRSModal('{{ proj.title }}', '{{ proj.description }}', this)">
+                            View Project Details <i class="fas fa-arrow-right ms-1"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+                <div class="col-12"><div class="alert alert-info">No projects found.</div></div>
+            {% endfor %}
+        </div>
+
+    </div>
+</div>
+
+<div class="modal fade" id="srsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+            
+            <div class="modal-header">
+                <div class="d-flex align-items-center">
+                    <div class="bg-primary text-white rounded-circle p-2 me-3" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title fw-bold text-dark mb-0" id="srsTitle">Project Title</h5>
+                        <small class="text-muted">Software Requirements Specification (SRS)</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body p-0">
+                <div class="row g-0 h-100">
+                    
+                    <div class="col-lg-4 srs-sidebar">
+                        <h6 class="fw-bold text-dark mb-3">Project Summary</h6>
+                        <p class="text-muted small mb-4" id="srsDesc">Description...</p>
+                        
+                        <h6 class="fw-bold text-dark mb-3">Recommended Tools</h6>
+                        <div class="d-flex flex-wrap gap-2 mb-4" id="srsTools">
+                            </div>
+
+                        <div class="alert alert-warning border-0 small">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <strong>Note:</strong> This is a self-paced project. Follow the modules on the right to build it step-by-step.
+                        </div>
+                    </div>
+
+                    <div class="col-lg-8 srs-content">
+                        <h5 class="fw-bold text-dark mb-4">What you need to build (Modules):</h5>
+                        
+                        <div id="srsFeaturesList" class="mb-5">
+                            </div>
+
+                        <hr class="my-5">
+
+                        <div class="bg-light p-4 rounded-3 border text-center">
+                            <h5 class="fw-bold text-dark mb-2">Project Submission</h5>
+                            <p class="text-muted small mb-3">Once you have completed all the modules above, click the button below to mark this project as finished in your dashboard.</p>
+                            
+                            <button class="btn btn-success px-5 py-2 rounded-pill fw-bold" onclick="markAsDone()">
+                                <i class="fas fa-check-circle me-2"></i> Mark Project as Completed
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentSRSBtn = null;
+
+    // INTELLIGENT SRS GENERATOR
+    function getSRSData(title) {
+        let tools = [];
+        let features = [];
+        title = title.toLowerCase();
+
+        if (title.includes('python') || title.includes('ai') || title.includes('recognition')) {
+            tools = ['Python', 'OpenCV', 'VS Code'];
+            features = [
+                { title: 'User Interface (UI)', desc: 'Create a window to display the live camera feed.' },
+                { title: 'Face Detection Module', desc: 'Use Haar Cascades to detect faces in real-time.' },
+                { title: 'Recognition Logic', desc: 'Compare detected face with saved database images.' },
+                { title: 'Attendance Log', desc: 'Save the recognized person name and time in a CSV file.' }
+            ];
+        } else if (title.includes('web') || title.includes('commerce')) {
+            tools = ['React.js', 'Node.js', 'MongoDB'];
+            features = [
+                { title: 'Product Catalog', desc: 'Display products with images, prices, and descriptions.' },
+                { title: 'Shopping Cart', desc: 'Allow users to add/remove items from the cart.' },
+                { title: 'User Authentication', desc: 'Login and Signup pages for customers.' },
+                { title: 'Checkout System', desc: 'A dummy payment form to finalize the order.' }
+            ];
+        } else if (title.includes('management') || title.includes('system')) {
+            tools = ['Java', 'MySQL', 'NetBeans/IntelliJ'];
+            features = [
+                { title: 'Admin Dashboard', desc: 'A secure panel to manage users and view statistics.' },
+                { title: 'Data Entry Module', desc: 'Forms to add new records (e.g., Patients, Inventory).' },
+                { title: 'Search Functionality', desc: 'Filter records by ID or Name.' },
+                { title: 'Report Generation', desc: 'Export daily or monthly data summaries.' }
+            ];
+        } else {
+            tools = ['General Programming Tools'];
+            features = [
+                { title: 'Core Logic Implementation', desc: 'Write the main functions/classes for the solution.' },
+                { title: 'User Input Handling', desc: 'Validate and process user inputs correctly.' },
+                { title: 'Data Storage', desc: 'Save data to a file or database.' },
+                { title: 'Error Handling', desc: 'Manage exceptions and edge cases.' }
+            ];
+        }
+        return { tools, features };
+    }
+
+    function openSRSModal(title, desc, btn) {
+        currentSRSBtn = btn;
+        
+        // 1. Set Info
+        document.getElementById('srsTitle').innerText = title;
+        document.getElementById('srsDesc').innerText = desc;
+
+        // 2. Get Data
+        const data = getSRSData(title);
+        
+        // 3. Populate Tools
+        const toolsDiv = document.getElementById('srsTools');
+        toolsDiv.innerHTML = '';
+        data.tools.forEach(t => {
+            toolsDiv.innerHTML += `<span class="badge bg-secondary text-white">${t}</span>`;
+        });
+
+        // 4. Populate Features (SRS)
+        const featDiv = document.getElementById('srsFeaturesList');
+        featDiv.innerHTML = '';
+        data.features.forEach(f => {
+            featDiv.innerHTML += `
+                <div class="feature-box">
+                    <h6 class="fw-bold text-primary mb-1">${f.title}</h6>
+                    <p class="text-muted small mb-0">${f.desc}</p>
+                </div>
+            `;
+        });
+
+        // 5. Show Modal
+        var myModal = new bootstrap.Modal(document.getElementById('srsModal'));
+        myModal.show();
+    }
+
+    function markAsDone() {
+        if(currentSRSBtn) {
+            // Close Modal
+            var modalEl = document.getElementById('srsModal');
+            var modal = bootstrap.Modal.getInstance(modalEl);
+            modal.hide();
+
+            // Update Dashboard Button
+            currentSRSBtn.classList.remove('btn-outline-success');
+            currentSRSBtn.classList.add('btn-success');
+            currentSRSBtn.innerHTML = '<i class="fas fa-check me-2"></i> Completed';
+            currentSRSBtn.disabled = true;
+
+            // Simple Confirmation
+            alert("Project marked as completed! Good luck with your next task.");
+        }
+    }
+</script>
+
+{% endblock %}

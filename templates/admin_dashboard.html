@@ -1,0 +1,440 @@
+{% extends "base.html" %}
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+    body { font-family: 'Poppins', sans-serif; background-color: #f4f7fa; }
+
+    /* --- 1. STATS CARDS --- */
+    .stat-card {
+        border: none; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        transition: 0.3s; overflow: hidden; background: white;
+    }
+    .stat-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+    .stat-icon {
+        width: 50px; height: 50px; border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.5rem; color: white;
+    }
+    .bg-grad-1 { background: linear-gradient(45deg, #0d6efd, #0dcaf0); }
+    .bg-grad-2 { background: linear-gradient(45deg, #198754, #20c997); }
+    .bg-grad-3 { background: linear-gradient(45deg, #ffc107, #ffca2c); }
+    .bg-grad-4 { background: linear-gradient(45deg, #dc3545, #f06595); }
+    .bg-grad-5 { background: linear-gradient(45deg, #6610f2, #6f42c1); }
+
+    /* --- 2. TABS STYLING --- */
+    .nav-pills { gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    
+    .nav-pills .nav-link {
+        color: #212529 !important; 
+        background: #ffffff !important; 
+        border: 1px solid #ced4da !important; 
+        font-weight: 700 !important; 
+        padding: 12px 25px;
+        border-radius: 50px; 
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+    .nav-pills .nav-link:hover {
+        background: #f8f9fa !important;
+        transform: translateY(-2px);
+        border-color: #adb5bd !important;
+    }
+    .nav-pills .nav-link.active {
+        color: #ffffff !important; 
+        border-color: transparent !important;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .nav-pills .nav-link.tab-companies.active { background: #2c3e50 !important; } 
+    .nav-pills .nav-link.tab-internships.active { background: #198754 !important; } 
+    .nav-pills .nav-link.tab-projects.active { background: #ffc107 !important; color: #000 !important; } 
+    .nav-pills .nav-link.tab-skills.active { background: #0d6efd !important; } 
+    .nav-pills .nav-link.tab-students.active { background: #dc3545 !important; }
+    .nav-pills .nav-link.tab-courses.active { background: #6610f2 !important; }
+
+    /* --- 3. FORMS & TABLES --- */
+    .card-form { border: none; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+    .form-control, .form-select { border-radius: 8px; padding: 10px; border: 1px solid #dee2e6; }
+    .form-control:focus, .form-select:focus { border-color: #0d6efd; box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15); }
+    
+    .table-vip thead th { background: #343a40; color: white; border: none; padding: 15px; white-space: nowrap; }
+    .table-vip tbody td { vertical-align: middle; padding: 12px 15px; background: white; border-bottom: 1px solid #f0f0f0; font-size: 0.95rem; }
+    .btn-action { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; transition: 0.2s; background: #f8f9fa; }
+    .btn-action:hover { background: #fee2e2; transform: scale(1.1); }
+    
+    .id-badge { background: #e9ecef; color: #495057; font-weight: bold; padding: 5px 10px; border-radius: 8px; font-size: 0.8rem; }
+
+    /* --- 4. NEW SKILL TAG STYLE (MATCHING YOUR SCREENSHOT) --- */
+    .skill-tag {
+        background-color: #ffffff;
+        border: 1px solid #dee2e6; /* Light Grey Border */
+        border-radius: 8px; /* Slightly rounded corners */
+        padding: 6px 14px;
+        color: #212529; /* Dark Text */
+        font-weight: 700;
+        font-size: 0.9rem;
+        display: inline-block;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+</style>
+
+<div class="container-fluid py-4">
+
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-3">
+            <h3 class="fw-bold text-dark mb-0"><i class="fas fa-cogs text-primary me-2"></i>Admin Panel</h3>
+            <p class="text-muted small mb-0">Full Access Management</p>
+        </div>
+        
+        <div class="col-md-9">
+            <div class="row g-2">
+                <div class="col">
+                    <div class="stat-card p-2 d-flex align-items-center">
+                        <div class="stat-icon bg-grad-1 me-2"><i class="fas fa-users"></i></div>
+                        <div><small class="text-muted d-block">Students</small><h5 class="fw-bold mb-0">{{ students|length }}</h5></div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="stat-card p-2 d-flex align-items-center">
+                        <div class="stat-icon bg-grad-2 me-2"><i class="fas fa-briefcase"></i></div>
+                        <div><small class="text-muted d-block">Internships</small><h5 class="fw-bold mb-0">{{ internships|length }}</h5></div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="stat-card p-2 d-flex align-items-center">
+                        <div class="stat-icon bg-grad-3 me-2"><i class="fas fa-project-diagram"></i></div>
+                        <div><small class="text-muted d-block">Projects</small><h5 class="fw-bold mb-0">{{ projects|length }}</h5></div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="stat-card p-2 d-flex align-items-center">
+                        <div class="stat-icon bg-grad-5 me-2"><i class="fas fa-video"></i></div>
+                        <div><small class="text-muted d-block">Courses</small><h5 class="fw-bold mb-0">{{ courses|length }}</h5></div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="stat-card p-2 d-flex align-items-center">
+                        <div class="stat-icon bg-grad-4 me-2"><i class="fas fa-building"></i></div>
+                        <div><small class="text-muted d-block">Companies</small><h5 class="fw-bold mb-0">{{ companies|length }}</h5></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <ul class="nav nav-pills" id="adminTabs" role="tablist">
+        <li class="nav-item"><button class="nav-link tab-companies {% if active_tab == 'companies' %}active{% endif %}" data-bs-toggle="tab" data-bs-target="#companies"><i class="fas fa-building me-2"></i> Companies</button></li>
+        <li class="nav-item"><button class="nav-link tab-internships {% if active_tab == 'internships' %}active{% endif %}" data-bs-toggle="tab" data-bs-target="#internships"><i class="fas fa-briefcase me-2"></i> Internships</button></li>
+        <li class="nav-item"><button class="nav-link tab-courses {% if active_tab == 'courses' %}active{% endif %}" data-bs-toggle="tab" data-bs-target="#courses"><i class="fas fa-video me-2"></i> Courses</button></li>
+        <li class="nav-item"><button class="nav-link tab-projects {% if active_tab == 'projects' %}active{% endif %}" data-bs-toggle="tab" data-bs-target="#projects"><i class="fas fa-laptop-code me-2"></i> Projects</button></li>
+        <li class="nav-item"><button class="nav-link tab-skills {% if active_tab == 'skills' %}active{% endif %}" data-bs-toggle="tab" data-bs-target="#skills"><i class="fas fa-tools me-2"></i> Skills</button></li>
+        <li class="nav-item"><button class="nav-link tab-students {% if active_tab == 'students' %}active{% endif %}" data-bs-toggle="tab" data-bs-target="#students"><i class="fas fa-user-graduate me-2"></i> Students</button></li>
+    </ul>
+
+    <div class="tab-content mt-3" id="adminTabContent">
+
+        <div class="tab-pane fade {% if active_tab == 'companies' %}show active{% endif %}" id="companies">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card card-form p-4">
+                        <h5 class="fw-bold mb-3"><i class="fas fa-plus-circle me-2"></i>Add Company</h5>
+                        <form action="/admin/add/company" method="POST">
+                            <input type="text" name="name" class="form-control mb-3" placeholder="Company Name" required>
+                            <input type="text" name="industry" class="form-control mb-3" placeholder="Industry (e.g. IT)" required>
+                            <input type="text" name="location" class="form-control mb-3" placeholder="Location" required>
+                            <button class="btn btn-dark w-100 rounded-pill">Add Company</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="card card-form overflow-hidden">
+                        <div class="table-responsive">
+                            <table class="table table-vip mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Industry</th>
+                                        <th>Location</th>
+                                        <th class="text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for c in companies %}
+                                    <tr>
+                                        <td><span class="id-badge">#{{ c.company_id }}</span></td>
+                                        <td class="fw-bold">{{ c.name }}</td>
+                                        <td>{{ c.industry }}</td>
+                                        <td><span class="badge bg-light text-dark border">{{ c.location }}</span></td>
+                                        <td class="text-center"><a href="/admin/delete/company/{{ c.company_id }}" class="btn-action text-danger" onclick="return confirm('Delete?');"><i class="fas fa-trash"></i></a></td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade {% if active_tab == 'internships' %}show active{% endif %}" id="internships">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card card-form p-4">
+                        <h5 class="fw-bold mb-3 text-success"><i class="fas fa-plus-circle me-2"></i>Post Internship</h5>
+                        <form action="/admin/add/internship" method="POST">
+                            <input type="text" name="title" class="form-control mb-3" placeholder="Job Title" required>
+                            <input type="text" name="role" class="form-control mb-3" placeholder="Role Description" required>
+                            <label class="small text-muted ms-1">Start Date</label>
+                            <input type="date" name="start_date" class="form-control mb-3" required>
+                            <input type="text" name="duration" class="form-control mb-3" placeholder="Duration (e.g. 3 Months)" required>
+                            <select name="company_id" class="form-select mb-3" required>
+                                <option value="" disabled selected>Select Company</option>
+                                {% for c in companies %}<option value="{{ c.company_id }}">{{ c.name }}</option>{% endfor %}
+                            </select>
+                            <button class="btn btn-success w-100 rounded-pill">Post Internship</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="card card-form overflow-hidden">
+                        <div class="table-responsive">
+                            <table class="table table-vip mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Title</th>
+                                        <th>Role</th>
+                                        <th>Company</th>
+                                        <th>Duration</th>
+                                        <th class="text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for i in internships %}
+                                    <tr>
+                                        <td><span class="id-badge">#{{ i.internship_id }}</span></td>
+                                        <td class="fw-bold text-success">{{ i.title }}</td>
+                                        <td>{{ i.role }}</td>
+                                        <td>{{ i.company_name }}</td>
+                                        <td><small class="text-muted">{{ i.duration }}</small></td>
+                                        <td class="text-center"><a href="/admin/delete/internship/{{ i.internship_id }}" class="btn-action text-danger"><i class="fas fa-trash"></i></a></td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade {% if active_tab == 'courses' %}show active{% endif %}" id="courses">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card card-form p-4">
+                        <h5 class="fw-bold mb-3" style="color: #6610f2;"><i class="fas fa-plus-circle me-2"></i>Add Course</h5>
+                        <form action="/admin/add/course" method="POST">
+                            <input type="text" name="title" class="form-control mb-3" placeholder="Course Title" required>
+                            <input type="text" name="provider" class="form-control mb-3" placeholder="Provider (e.g. Udemy)" required>
+                            <input type="text" name="duration" class="form-control mb-3" placeholder="Duration (e.g. 10 Hours)" required>
+                            <input type="text" name="link" class="form-control mb-3" placeholder="Course URL" required>
+                            <label class="small text-muted ms-1">Link to Skill</label>
+                            <select name="skill_id" class="form-select mb-3" required>
+                                <option value="" disabled selected>Select Skill</option>
+                                {% for s in skills %}<option value="{{ s.skill_id }}">{{ s.skill_name }}</option>{% endfor %}
+                            </select>
+                            <button class="btn text-white w-100 rounded-pill" style="background-color: #6610f2;">Add Course</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="card card-form overflow-hidden">
+                        <div class="table-responsive">
+                            <table class="table table-vip mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Course</th>
+                                        <th>Provider</th>
+                                        <th>Linked Skill</th>
+                                        <th class="text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for c in courses %}
+                                    <tr>
+                                        <td><span class="id-badge">#{{ c.course_id }}</span></td>
+                                        <td class="fw-bold" style="color: #6610f2;">{{ c.title }}</td>
+                                        <td>{{ c.provider }}</td>
+                                        <td><span class="skill-tag">{{ c.skill_name }}</span></td>
+                                        <td class="text-center"><a href="/admin/delete/course/{{ c.course_id }}" class="btn-action text-danger" onclick="return confirm('Delete?');"><i class="fas fa-trash"></i></a></td>
+                                    </tr>
+                                    {% else %}
+                                    <tr><td colspan="5" class="text-center text-muted">No courses added yet.</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade {% if active_tab == 'projects' %}show active{% endif %}" id="projects">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card card-form p-4">
+                        <h5 class="fw-bold mb-3 text-warning"><i class="fas fa-plus-circle me-2"></i>Add Project</h5>
+                        <form action="/admin/add/project" method="POST">
+                            <input type="text" name="title" class="form-control mb-3" placeholder="Project Title" required>
+                            <select name="level" class="form-select mb-3">
+                                <option>Basic</option><option>Intermediate</option><option>Advanced</option>
+                            </select>
+                            <textarea name="desc" class="form-control mb-3" placeholder="Description" rows="2" required></textarea>
+                            <select name="skill_id" class="form-select mb-3" required>
+                                <option value="" disabled selected>Required Skill</option>
+                                {% for s in skills %}<option value="{{ s.skill_id }}">{{ s.skill_name }}</option>{% endfor %}
+                            </select>
+                            <button class="btn btn-warning w-100 rounded-pill fw-bold">Add Project</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="card card-form overflow-hidden">
+                        <div class="table-responsive">
+                            <table class="table table-vip mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Title</th>
+                                        <th>Level</th>
+                                        <th>Required Skill</th> 
+                                        <th class="text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for p in projects %}
+                                    <tr>
+                                        <td><span class="id-badge">#{{ p.project_id }}</span></td>
+                                        <td class="fw-bold">{{ p.title }}</td>
+                                        <td><span class="badge {% if p.complexity_level == 'Basic' %}bg-success{% elif p.complexity_level == 'Advanced' %}bg-danger{% else %}bg-warning{% endif %} rounded-pill">{{ p.complexity_level }}</span></td>
+                                        
+                                        <td>
+                                            <span class="skill-tag">{{ p.skill_name }}</span>
+                                        </td>
+                                        
+                                        <td class="text-center"><a href="/admin/delete/project/{{ p.project_id }}" class="btn-action text-danger"><i class="fas fa-trash"></i></a></td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade {% if active_tab == 'skills' %}show active{% endif %}" id="skills">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card card-form p-4">
+                        <h5 class="fw-bold mb-3 text-primary"><i class="fas fa-plus-circle me-2"></i>New Skill</h5>
+                        <form action="/admin/add/skill" method="POST">
+                            <input type="text" name="skill_name" class="form-control mb-3" placeholder="Skill Name (e.g. Python)" required>
+                            <input type="text" name="category" class="form-control mb-3" placeholder="Category (e.g. Coding)" required>
+                            <button class="btn btn-primary w-100 rounded-pill">Add Skill</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="card card-form overflow-hidden">
+                        <div class="table-responsive">
+                            <table class="table table-vip mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Skill Name</th>
+                                        <th>Category</th>
+                                        <th class="text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for s in skills %}
+                                    <tr>
+                                        <td><span class="id-badge">#{{ s.skill_id }}</span></td>
+                                        <td class="fw-bold">{{ s.skill_name }}</td>
+                                        <td><span class="badge bg-primary bg-opacity-10 text-primary">{{ s.category }}</span></td>
+                                        <td class="text-center"><a href="/admin/delete/skill/{{ s.skill_id }}" class="btn-action text-danger" onclick="return confirm('Delete?');"><i class="fas fa-trash"></i></a></td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade {% if active_tab == 'students' %}show active{% endif %}" id="students">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card card-form p-4">
+                        <h5 class="fw-bold mb-3 text-danger"><i class="fas fa-user-plus me-2"></i>Add Student</h5>
+                        <form action="/admin/add/student" method="POST">
+                            <input type="text" name="name" class="form-control mb-3" placeholder="Full Name" required>
+                            <input type="email" name="email" class="form-control mb-3" placeholder="Email Address" required>
+                            <input type="text" name="major" class="form-control mb-3" placeholder="Major Subject" required>
+                            <input type="number" name="grad_year" class="form-control mb-3" placeholder="Graduation Year" required>
+                            <button class="btn btn-danger text-white w-100 rounded-pill">Add Student</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="card card-form overflow-hidden">
+                        <div class="table-responsive">
+                            <table class="table table-vip mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Major</th>
+                                        <th>Year</th>
+                                        <th class="text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for std in students %}
+                                    <tr>
+                                        <td><span class="id-badge">#{{ std.student_id }}</span></td>
+                                        <td class="fw-bold">
+                                            <div class="d-flex align-items-center">
+                                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 30px; height: 30px;">
+                                                    <i class="fas fa-user text-secondary small"></i>
+                                                </div>
+                                                {{ std.name }}
+                                            </div>
+                                        </td>
+                                        <td class="small text-muted">{{ std.email }}</td>
+                                        <td><span class="badge bg-light text-dark border">{{ std.major }}</span></td>
+                                        <td>{{ std.graduation_year }}</td>
+                                        <td class="text-center"><a href="/admin/delete/student/{{ std.student_id }}" class="btn-action text-danger" onclick="return confirm('Delete Student?');"><i class="fas fa-trash"></i></a></td>
+                                    </tr>
+                                    {% else %}
+                                    <tr><td colspan="6" class="text-center text-muted py-4">No students found.</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

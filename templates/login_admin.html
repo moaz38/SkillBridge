@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-4">
+        <div class="card border-danger shadow">
+            <div class="card-header bg-danger text-white text-center">
+                <h4><i class="fas fa-lock"></i> Admin Secure Login</h4>
+            </div>
+            <div class="card-body p-4">
+                <form action="/admin/login" method="POST">
+                    <div class="mb-3">
+                        <label>Username</label>
+                        <input type="text" name="username" class="form-control" placeholder="admin" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Password</label>
+                        <input type="password" name="password" class="form-control" placeholder="*****" required>
+                    </div>
+                    <button type="submit" class="btn btn-danger w-100">Access Panel</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

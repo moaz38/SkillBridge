@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+{% block content %}
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+    body { font-family: 'Poppins', sans-serif; background-color: #f4f7fa; }
+
+    /* --- 1. NEW SEAMLESS HEADER (White Box Removed) --- */
+    .skills-header {
+        /* Background hata diya, ab ye page k sath mix hoga */
+        background: transparent; 
+        padding: 50px 20px 30px 20px;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    /* --- 2. FLOATING SEARCH BAR (VIP Look) --- */
+    .search-box {
+        position: relative;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    .search-input {
+        padding: 18px 25px 18px 55px; /* Thora bara size */
+        border-radius: 50px;
+        border: none; /* Border hataya, shadow lagaya */
+        background: white;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08); /* Soft Shadow */
+        font-size: 1rem;
+        transition: 0.3s;
+    }
+    .search-input:focus {
+        outline: none;
+        box-shadow: 0 15px 40px rgba(13, 110, 253, 0.15); /* Blue Glow */
+        transform: translateY(-2px);
+    }
+    .search-icon {
+        position: absolute;
+        left: 25px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #0d6efd; /* Blue Icon */
+        font-size: 1.2rem;
+    }
+
+    /* --- SKILL CARDS (SAME AS BEFORE) --- */
+    .skill-card-label { display: block; cursor: pointer; height: 100%; }
+    .skill-checkbox { display: none; }
+    
+    .skill-box {
+        background: white;
+        border: 2px solid transparent; /* Border chupaya */
+        border-radius: 15px;
+        padding: 20px;
+        transition: all 0.2s ease-in-out;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.03); /* Light Shadow added */
+    }
+
+    /* Hover Effect */
+    .skill-card-label:hover .skill-box {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+    }
+
+    /* SELECTED STATE */
+    .skill-checkbox:checked + .skill-box {
+        border-color: #0d6efd;
+        background-color: #f0f7ff;
+        box-shadow: 0 5px 15px rgba(13, 110, 253, 0.2);
+    }
+
+    .skill-icon {
+        font-size: 1.5rem;
+        width: 50px; height: 50px;
+        background: #f8f9fa; color: #6c757d;
+        border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        margin-right: 15px; transition: 0.3s;
+    }
+
+    .skill-checkbox:checked + .skill-box .skill-icon {
+        background: #0d6efd; color: white;
+    }
+
+    .check-badge {
+        position: absolute; top: 10px; right: 10px;
+        font-size: 1.2rem; color: #0d6efd;
+        opacity: 0; transform: scale(0.5);
+        transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .skill-checkbox:checked + .skill-box .check-badge {
+        opacity: 1; transform: scale(1);
+    }
+
+    /* --- FLOATING SAVE BUTTON --- */
+    .save-bar {
+        position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+        background: white; padding: 12px 30px; border-radius: 50px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2); z-index: 1000;
+        display: flex; align-items: center; gap: 20px;
+        animation: slideUp 0.5s ease-out;
+    }
+    @keyframes slideUp { from { bottom: -100px; } to { bottom: 30px; } }
+
+</style>
+
+<div class="skills-header">
+    <h2 class="fw-bold mb-2" style="color: #2c3e50;">My Skillset</h2>
+    <p class="text-muted mb-4">Select the skills you possess to get personalized recommendations.</p>
+    
+    <div class="search-box">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" id="skillSearch" class="form-control search-input" placeholder="Search skills (e.g. Python, Design)..." onkeyup="filterSkills()">
+    </div>
+</div>
+
+<div class="container pb-5 mb-5">
+    <form action="/student/skills" method="POST">
+        
+        <div class="row g-4" id="skillsGrid">
+            {% for skill in all_skills %}
+            <div class="col-md-4 col-lg-3 col-sm-6 skill-col">
+                <label class="skill-card-label">
+                    <input type="checkbox" name="skills" value="{{ skill['skill_id'] }}" 
+                           class="skill-checkbox" 
+                           {% if skill['skill_id'] in my_ids %}checked{% endif %}>
+                    
+                    <div class="skill-box">
+                        <div class="d-flex align-items-center">
+                            <div class="skill-icon">
+                                {% if 'Design' in skill['category'] or 'Graphic' in skill['skill_name'] %} <i class="fas fa-pen-nib"></i>
+                                {% elif 'Web' in skill['category'] or 'HTML' in skill['skill_name'] %} <i class="fas fa-code"></i>
+                                {% elif 'Data' in skill['category'] or 'SQL' in skill['skill_name'] %} <i class="fas fa-database"></i>
+                                {% elif 'Marketing' in skill['category'] %} <i class="fas fa-bullhorn"></i>
+                                {% else %} <i class="fas fa-laptop-code"></i> {% endif %}
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-0 text-dark skill-name">{{ skill['skill_name'] }}</h6>
+                                <small class="text-muted skill-category" style="font-size: 0.75rem;">{{ skill['category'] }}</small>
+                            </div>
+                        </div>
+                        <div class="check-badge"><i class="fas fa-check-circle"></i></div>
+                    </div>
+                </label>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="save-bar">
+            <span class="text-muted fw-bold d-none d-md-block small">All done?</span>
+            <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm">
+                Save & Update <i class="fas fa-arrow-right ms-2"></i>
+            </button>
+        </div>
+
+    </form>
+</div>
+
+<script>
+    function filterSkills() {
+        let input = document.getElementById('skillSearch').value.toLowerCase();
+        let cards = document.getElementsByClassName('skill-col');
+        for (let i = 0; i < cards.length; i++) {
+            let name = cards[i].querySelector('.skill-name').innerText.toLowerCase();
+            let cat = cards[i].querySelector('.skill-category').innerText.toLowerCase();
+            if (name.includes(input) || cat.includes(input)) {
+                cards[i].style.display = "";
+            } else {
+                cards[i].style.display = "none";
+            }
+        }
+    }
+</script>
+
+{% endblock %}

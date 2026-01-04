@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+<style>
+    /* 1. VIP FONT & BODY */
+    body {
+        font-family: 'Poppins', sans-serif !important;
+        /* Soft Premium Gradient Background */
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); 
+    }
+
+    /* 2. MODERN BADGE STYLE */
+    .vip-badge {
+        background: rgba(13, 110, 253, 0.1);
+        color: #0d6efd;
+        padding: 8px 16px;
+        border-radius: 30px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        display: inline-block;
+        border: 1px solid rgba(13, 110, 253, 0.2);
+        box-shadow: 0 4px 15px rgba(13, 110, 253, 0.1);
+    }
+
+    /* 3. HERO TEXT STYLING */
+    .hero-title {
+        font-size: 3.5rem;
+        font-weight: 800;
+        line-height: 1.2;
+        background: -webkit-linear-gradient(45deg, #090979, #00d4ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 20px;
+    }
+
+    /* 4. GLOWING BUTTONS */
+    .btn-glow {
+        background: linear-gradient(45deg, #0052d4, #4364f7, #6fb1fc);
+        border: none;
+        color: white;
+        padding: 12px 35px;
+        font-weight: 600;
+        border-radius: 50px;
+        box-shadow: 0 10px 20px rgba(67, 100, 247, 0.3);
+        transition: all 0.3s ease;
+    }
+    .btn-glow:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 25px rgba(67, 100, 247, 0.5);
+        color: white;
+    }
+
+    /* 5. IMAGE STYLING (Never Break) */
+    .hero-image-container {
+        position: relative;
+        z-index: 1;
+    }
+    .hero-img {
+        border-radius: 20px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.2); /* Deep Shadow */
+        transform: perspective(1000px) rotateY(-5deg) rotateX(2deg);
+        transition: transform 0.5s;
+        border: 5px solid white;
+    }
+    .hero-img:hover {
+        transform: perspective(1000px) rotateY(0deg) rotateX(0deg);
+    }
+
+    /* 6. ANIMATIONS (Entry Effect) */
+    .slide-in-left { animation: slideLeft 1s ease-out forwards; opacity: 0; transform: translateX(-50px); }
+    .slide-in-right { animation: slideRight 1s ease-out forwards; opacity: 0; transform: translateX(50px); }
+
+    @keyframes slideLeft { to { opacity: 1; transform: translateX(0); } }
+    @keyframes slideRight { to { opacity: 1; transform: translateX(0); } }
+
+</style>
+
+<div class="row align-items-center py-5" style="min-height: 80vh;">
+    
+    <div class="col-lg-6 text-start slide-in-left">
+        <span class="vip-badge mb-3">
+            <i class="fas fa-star me-2"></i> Career Management System
+        </span>
+        
+        <h1 class="hero-title mt-2">
+            Build Your Future <br>
+            With SkillBridge.
+        </h1>
+        
+        <p class="lead text-secondary mb-5" style="font-size: 1.1rem; line-height: 1.8;">
+            Don't just graduate, <strong>Launch your Career!</strong> <br>
+            We connect your academic skills with real-world internships.
+        </p>
+        
+        <div class="d-flex gap-3">
+            <a href="/student/login" class="btn btn-glow">
+                <i class="fas fa-rocket me-2"></i> Student Login
+            </a>
+            <a href="/student/register" class="btn btn-outline-primary btn-lg rounded-pill px-4" style="border-width: 2px; font-weight: 600;">
+                Register Now
+            </a>
+        </div>
+        
+        <div class="mt-5 pt-3 border-top">
+            <small class="text-uppercase text-muted fw-bold ls-1">Trusted By:</small>
+            <div class="d-flex gap-4 mt-2 text-primary fs-5">
+                <i class="fab fa-google"></i>
+                <i class="fab fa-microsoft"></i>
+                <i class="fab fa-amazon"></i>
+                <i class="fab fa-spotify"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6 text-center slide-in-right mt-5 mt-lg-0">
+        <div class="hero-image-container">
+            <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                 class="img-fluid hero-img" 
+                 alt="Students Working Together">
+                 
+            <div class="bg-white p-3 rounded shadow position-absolute bottom-0 start-0 translate-middle-y d-none d-md-block" style="border-left: 5px solid #0d6efd;">
+                <div class="d-flex align-items-center">
+                    <div class="bg-primary text-white rounded-circle p-2 me-2">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div>
+                        <h6 class="m-0 fw-bold">100% Matched</h6>
+                        <small class="text-muted">Jobs Found</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

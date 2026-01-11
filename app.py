@@ -5,10 +5,10 @@ app = Flask(__name__)
 app.secret_key = 'moaz_pro_max_secret'
 
 db_config = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': 'admin', 
-    'database': 'SkillBridge_DB'
+    'host': 'moazz.mysql.pythonanywhere-services.com',
+    'user': 'moazz',
+    'password': 'dbpass123',        # <-- Wo password jo aapne database ka rakha tha
+    'database': 'moazz$default'     # <-- "Databases" tab se check kar lein
 }
 
 def get_db():
@@ -29,14 +29,15 @@ def student_login():
         cursor = conn.cursor(dictionary=True)
         cursor.execute("SELECT * FROM STUDENT WHERE email = %s", (email,))
         user = cursor.fetchone()
-        
+
         if user:
             session['user_id'] = user['student_id']
             session['role'] = 'student'
             session['name'] = user['name']
-            
-            # --- CHANGE 1: Gender bhi session mein save kiya ---
-            session['gender'] = user['gender'] 
+
+            # --- CHANGE 1: Gender & major bhi session mein save kiya ---
+            session['gender'] = user['gender']
+            session['major'] = user['major']
             # ---------------------------------------------------
 
             conn.close()
@@ -53,7 +54,7 @@ def student_register():
         email = request.form['email']
         major = request.form['major']
         grad_year = request.form['graduation_year']
-        
+
         # --- CHANGE 2: Form se Gender liya ---
         gender = request.form['gender']
         # -------------------------------------
@@ -62,7 +63,7 @@ def student_register():
         cursor = conn.cursor()
         try:
             # --- CHANGE 3: Query mein gender add kiya ---
-            cursor.execute("INSERT INTO STUDENT (name, email, major, graduation_year, gender) VALUES (%s, %s, %s, %s, %s)", 
+            cursor.execute("INSERT INTO STUDENT (name, email, major, graduation_year, gender) VALUES (%s, %s, %s, %s, %s)",
                            (name, email, major, grad_year, gender))
             conn.commit()
             flash('Registration Successful! Login Now.', 'success')
@@ -79,16 +80,16 @@ def student_dashboard():
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
     student_id = session['user_id']
-    
+
     # 1. Fetch Student's Skills
     cursor.execute("""
-        SELECT s.skill_name 
-        FROM STUDENT_SKILL ss 
-        JOIN SKILL s ON ss.skill_id = s.skill_id 
+        SELECT s.skill_name
+        FROM STUDENT_SKILL ss
+        JOIN SKILL s ON ss.skill_id = s.skill_id
         WHERE ss.student_id = %s
     """, (student_id,))
     my_skills = cursor.fetchall()
-    
+
     if not my_skills:
         conn.close()
         flash('Please select your skills first.', 'info')
@@ -97,7 +98,7 @@ def student_dashboard():
     # 2. MATCHING INTERNSHIPS
     cursor.execute("""
         SELECT DISTINCT i.title, c.name as company, i.duration, i.role, i.internship_id
-        FROM INTERNSHIP i 
+        FROM INTERNSHIP i
         JOIN COMPANY c ON i.company_id = c.company_id
         JOIN STUDENT_SKILL ss ON ss.student_id = %s
         JOIN SKILL s ON ss.skill_id = s.skill_id
@@ -125,7 +126,7 @@ def student_dashboard():
 
     # 5. Application Status
     cursor.execute("""
-        SELECT i.title, c.name as company, sa.status 
+        SELECT i.title, c.name as company, sa.status
         FROM STUDENT_APPLICATION sa
         JOIN INTERNSHIP i ON sa.internship_id = i.internship_id
         JOIN COMPANY c ON i.company_id = c.company_id
@@ -134,10 +135,10 @@ def student_dashboard():
     my_apps = cursor.fetchall()
 
     conn.close()
-    return render_template('student_dashboard.html', 
-                           student=session['name'], 
-                           skills=my_skills, 
-                           internships=internships, 
+    return render_template('student_dashboard.html',
+                           student=session['name'],
+                           skills=my_skills,
+                           internships=internships,
                            projects=projects,
                            applications=my_apps,
                            courses=courses)
@@ -166,12 +167,12 @@ def apply_internship(internship_id):
     conn = get_db()
     cursor = conn.cursor()
     try:
-        cursor.execute("SELECT * FROM STUDENT_APPLICATION WHERE student_id=%s AND internship_id=%s", 
+        cursor.execute("SELECT * FROM STUDENT_APPLICATION WHERE student_id=%s AND internship_id=%s",
                        (session['user_id'], internship_id))
         if cursor.fetchone():
             flash('You have already applied for this internship!', 'warning')
         else:
-            cursor.execute("INSERT INTO STUDENT_APPLICATION (student_id, internship_id, status) VALUES (%s, %s, 'Pending')", 
+            cursor.execute("INSERT INTO STUDENT_APPLICATION (student_id, internship_id, status) VALUES (%s, %s, 'Pending')",
                            (session['user_id'], internship_id))
             conn.commit()
             flash('Application Submitted Successfully!', 'success')
@@ -199,47 +200,47 @@ def admin_login():
 @app.route('/admin/dashboard')
 def admin_dashboard():
     if session.get('role') != 'admin': return redirect(url_for('admin_login'))
-    
-    active_tab = request.args.get('tab', 'companies') 
+
+    active_tab = request.args.get('tab', 'companies')
 
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
-    
+
     cursor.execute("SELECT * FROM COMPANY")
     companies = cursor.fetchall()
-    
+
     cursor.execute("SELECT i.*, c.name as company_name FROM INTERNSHIP i JOIN COMPANY c ON i.company_id = c.company_id")
     internships = cursor.fetchall()
-    
+
     # 4. Fetch Projects (Updated to include Skill Name)
     cursor.execute("""
-        SELECT p.*, s.skill_name 
+        SELECT p.*, s.skill_name
         FROM PROJECT p
         JOIN PROJECT_SKILL ps ON p.project_id = ps.project_id
         JOIN SKILL s ON ps.skill_id = s.skill_id
     """)
     projects = cursor.fetchall()
-    
+
     cursor.execute("SELECT * FROM SKILL")
     skills = cursor.fetchall()
-    
+
     cursor.execute("SELECT * FROM STUDENT")
     students = cursor.fetchall()
 
     cursor.execute("""
-        SELECT c.*, s.skill_name 
-        FROM COURSE c 
-        JOIN COURSE_SKILL cs ON c.course_id = cs.course_id 
+        SELECT c.*, s.skill_name
+        FROM COURSE c
+        JOIN COURSE_SKILL cs ON c.course_id = cs.course_id
         JOIN SKILL s ON cs.skill_id = s.skill_id
     """)
     courses = cursor.fetchall()
-    
+
     conn.close()
-    
-    return render_template('admin_dashboard.html', 
-                           companies=companies, 
-                           internships=internships, 
-                           projects=projects, 
+
+    return render_template('admin_dashboard.html',
+                           companies=companies,
+                           internships=internships,
+                           projects=projects,
                            skills=skills,
                            students=students,
                            courses=courses,
@@ -264,7 +265,7 @@ def add_internship():
     if session.get('role') != 'admin': return redirect(url_for('admin_login'))
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO INTERNSHIP (title, role, start_date, duration, company_id) VALUES (%s, %s, %s, %s, %s)", 
+    cursor.execute("INSERT INTO INTERNSHIP (title, role, start_date, duration, company_id) VALUES (%s, %s, %s, %s, %s)",
                    (request.form['title'], request.form['role'], request.form['start_date'], request.form['duration'], request.form['company_id']))
     conn.commit()
     conn.close()
@@ -322,16 +323,16 @@ def add_student_admin():
 def add_course():
     if session.get('role') != 'admin': return redirect(url_for('admin_login'))
     title = request.form['title']
-    provider = request.form['provider'] 
+    provider = request.form['provider']
     duration = request.form['duration']
-    link = request.form['link'] 
-    skill_id = request.form['skill_id'] 
-    
+    link = request.form['link']
+    skill_id = request.form['skill_id']
+
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO COURSE (title, provider, duration, link) VALUES (%s, %s, %s, %s)", 
+    cursor.execute("INSERT INTO COURSE (title, provider, duration, link) VALUES (%s, %s, %s, %s)",
                    (title, provider, duration, link))
-    course_id = cursor.lastrowid 
+    course_id = cursor.lastrowid
     cursor.execute("INSERT INTO COURSE_SKILL (course_id, skill_id) VALUES (%s, %s)", (course_id, skill_id))
     conn.commit()
     conn.close()
@@ -355,9 +356,9 @@ def delete_item(type, id):
     if session.get('role') != 'admin': return redirect(url_for('admin_login'))
     conn = get_db()
     cursor = conn.cursor()
-    
+
     redirect_tab = 'companies'
-    
+
     if type == 'company':
         cursor.execute("DELETE FROM COMPANY WHERE company_id = %s", (id,))
         redirect_tab = 'companies'
@@ -374,7 +375,7 @@ def delete_item(type, id):
     elif type == 'student':
         cursor.execute("DELETE FROM STUDENT WHERE student_id = %s", (id,))
         redirect_tab = 'students'
-        
+
     conn.commit()
     conn.close()
     flash('Item Deleted!', 'warning')

@@ -18,7 +18,7 @@
     .job-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(13, 110, 253, 0.15); }
     .btn-apply { background: linear-gradient(90deg, #0d6efd, #0099ff); color: white; border-radius: 50px; padding: 8px 25px; border: none; font-weight: 500; transition: 0.3s; }
     .btn-apply:hover { transform: scale(1.05); box-shadow: 0 6px 15px rgba(13, 110, 253, 0.3); color: white; }
-    
+
     /* --- PROFESSIONAL THUMBNAIL COURSE CARD --- */
     .course-card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.05); transition: 0.3s; height: 100%; border: 1px solid #f0f0f0; }
     .course-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
@@ -32,7 +32,7 @@
     .modal-fullscreen .modal-header { background: white; padding: 20px 40px; border-bottom: 1px solid #eee; }
     .srs-sidebar { background: #f8f9fa; border-right: 1px solid #e9ecef; height: 100%; padding: 30px; }
     .srs-content { padding: 40px; background: white; }
-    
+
     /* Feature Box Style */
     .feature-box {
         border-left: 4px solid #0d6efd;
@@ -46,15 +46,20 @@
 <div class="row fade-in-up">
     <div class="col-md-3">
         <div class="profile-card">
-            <div class="profile-header-bg"></div>           
-            {% if session.get('gender') == 'Female' %}
-                <img src="https://cdn-icons-png.flaticon.com/512/3135/3135768.png" alt="User" class="profile-img">
+            <div class="profile-header-bg"></div>
+
+            {% if session.get('gender') and session.get('gender').lower() == 'female' %}
+
+                <img src="https://cdn-icons-png.flaticon.com/512/219/219969.png" alt="Female" class="profile-img">
+
             {% else %}
-                <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="User" class="profile-img">
+
+                <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Male" class="profile-img">
+
             {% endif %}
             <div class="p-3">
                 <h5 class="fw-bold text-dark mb-1">{{ student }}</h5>
-                <p class="text-muted small mb-3">Computer Science Student</p>
+                <p class="text-muted small mb-3">{{ session.get('major') | upper }} Student</p>
                 <a href="/student/skills" class="btn btn-outline-primary btn-sm rounded-pill w-100 mb-3">Edit Skills</a>
                 <hr class="opacity-25 my-3">
                 <div class="text-start">
@@ -82,7 +87,7 @@
     </div>
 
     <div class="col-md-9 mt-4 mt-md-0">
-        
+
         <h4 class="fw-bold text-dark mb-4"><span class="text-primary me-2"><i class="fas fa-briefcase"></i></span> Recommended Internships</h4>
         {% for intern in internships %}
         <div class="job-card mb-3 p-4">
@@ -135,8 +140,8 @@
                             <span class="badge bg-success bg-opacity-10 text-success rounded-pill">{{ proj['complexity_level'] }}</span>
                         </div>
                         <p class="text-muted small">{{ proj['description'] }}</p>
-                        
-                        <button class="btn btn-outline-success w-100 rounded-pill mt-2 project-btn" 
+
+                        <button class="btn btn-outline-success w-100 rounded-pill mt-2 project-btn"
                                 onclick="openSRSModal('{{ proj.title }}', '{{ proj.description }}', this)">
                             View Project Details <i class="fas fa-arrow-right ms-1"></i>
                         </button>
@@ -154,7 +159,7 @@
 <div class="modal fade" id="srsModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-fullscreen">
         <div class="modal-content">
-            
+
             <div class="modal-header">
                 <div class="d-flex align-items-center">
                     <div class="bg-primary text-white rounded-circle p-2 me-3" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
@@ -167,14 +172,14 @@
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            
+
             <div class="modal-body p-0">
                 <div class="row g-0 h-100">
-                    
+
                     <div class="col-lg-4 srs-sidebar">
                         <h6 class="fw-bold text-dark mb-3">Project Summary</h6>
                         <p class="text-muted small mb-4" id="srsDesc">Description...</p>
-                        
+
                         <h6 class="fw-bold text-dark mb-3">Recommended Tools</h6>
                         <div class="d-flex flex-wrap gap-2 mb-4" id="srsTools">
                             </div>
@@ -187,7 +192,7 @@
 
                     <div class="col-lg-8 srs-content">
                         <h5 class="fw-bold text-dark mb-4">What you need to build (Modules):</h5>
-                        
+
                         <div id="srsFeaturesList" class="mb-5">
                             </div>
 
@@ -196,7 +201,7 @@
                         <div class="bg-light p-4 rounded-3 border text-center">
                             <h5 class="fw-bold text-dark mb-2">Project Submission</h5>
                             <p class="text-muted small mb-3">Once you have completed all the modules above, click the button below to mark this project as finished in your dashboard.</p>
-                            
+
                             <button class="btn btn-success px-5 py-2 rounded-pill fw-bold" onclick="markAsDone()">
                                 <i class="fas fa-check-circle me-2"></i> Mark Project as Completed
                             </button>
@@ -257,14 +262,14 @@
 
     function openSRSModal(title, desc, btn) {
         currentSRSBtn = btn;
-        
+
         // 1. Set Info
         document.getElementById('srsTitle').innerText = title;
         document.getElementById('srsDesc').innerText = desc;
 
         // 2. Get Data
         const data = getSRSData(title);
-        
+
         // 3. Populate Tools
         const toolsDiv = document.getElementById('srsTools');
         toolsDiv.innerHTML = '';
